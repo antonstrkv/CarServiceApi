@@ -8,6 +8,10 @@ builder.Services.AddDataAccess();
 builder.Services.AddBussinessLogic();
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
+builder.Services.AddStackExchangeRedisCache(options => {
+    options.Configuration = "localhost";
+    options.InstanceName = "local";
+});
 var app = builder.Build();
 app.UseRouting();
 app.MapControllers();
