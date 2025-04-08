@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using DataAccess.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace BusinessLogic
+namespace DataAccess
 {
     public static class Extentions
     {

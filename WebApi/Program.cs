@@ -1,5 +1,5 @@
 using DataAccess;
-using BusinessLogic;
+using DataAccess;
 
 var builder = WebApplication.CreateBuilder(args);
 

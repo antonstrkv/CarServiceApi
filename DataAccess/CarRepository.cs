@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DataAccess.Utilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 
@@ -8,19 +9,23 @@ namespace DataAccess
     {
         private readonly AppContext context;
         private readonly IDistributedCache cache;
+        private readonly RetryService retryService;
         private const string AvailableCarsCacheKey = "available_cars";
 
-        public CarRepository(AppContext context, IDistributedCache distributedCache)
+        public CarRepository(AppContext context, IDistributedCache distributedCache, RetryService retryService)
         {
             this.context = context;
-            cache = distributedCache;
+            this.cache = distributedCache;
+            this.retryService = retryService;
         }
 
         public async Task CreateAsync(Car car, CancellationToken cancellationToken = default)
         {
             await context.Cars.AddAsync(car, cancellationToken);
-            await context.SaveChangesAsync(cancellationToken);
-
+            await retryService.DoWithRetryAsync(
+               () => context.SaveChangesAsync(cancellationToken),
+               TimeSpan.FromSeconds(3)
+           );
             await InvalidateCacheAsync(AvailableCarsCacheKey, cancellationToken);
         }
 
@@ -37,7 +42,10 @@ namespace DataAccess
         public async Task UpdateAsync(Car car, CancellationToken cancellationToken = default)
         {
             context.Cars.Update(car);
-            await context.SaveChangesAsync(cancellationToken);
+            await retryService.DoWithRetryAsync(
+                () => context.SaveChangesAsync(cancellationToken),
+                TimeSpan.FromSeconds(3)
+            );
 
             await SetCacheAsync(GetCarCacheKey(car.Id), car, cancellationToken);
             await InvalidateCacheAsync(AvailableCarsCacheKey, cancellationToken);
@@ -60,7 +68,10 @@ namespace DataAccess
 
             car.IsAvailable = true;
             context.Cars.Update(car);
-            await context.SaveChangesAsync(cancellationToken);
+            await retryService.DoWithRetryAsync(
+                () => context.SaveChangesAsync(cancellationToken),
+                TimeSpan.FromSeconds(3)
+            );
 
             await SetCacheAsync(GetCarCacheKey(id), car, cancellationToken);
             await InvalidateCacheAsync(AvailableCarsCacheKey, cancellationToken);

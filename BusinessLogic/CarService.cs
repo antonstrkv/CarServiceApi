@@ -1,6 +1,6 @@
 ﻿using DataAccess;
 
-namespace BusinessLogic
+namespace DataAccess
 {
     internal class CarService : ICarService
     {

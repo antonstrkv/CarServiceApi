@@ -1,6 +1,6 @@
 ﻿using DataAccess;
 
-namespace BusinessLogic
+namespace DataAccess
 {
     public interface ICarService
     {
