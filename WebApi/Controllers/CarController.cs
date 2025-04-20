@@ -1,11 +1,13 @@
 ﻿using DataAccess;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.DTOs;
+using WebApi.Filters;
 
 namespace WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ServiceFilter(typeof(ExecutionTimingFilter))]
     public class CarController : ControllerBase
     {
         private readonly ICarService carService;

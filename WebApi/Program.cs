@@ -1,6 +1,7 @@
 using DataAccess;
 using Serilog;
 using Serilog.Events;
+using WebApi.Filters;
 using WebApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,8 @@ Log.Logger = new LoggerConfiguration()
             logEvent.Properties["SourceContext"].ToString().Contains("CarRequestLoggingMiddleware"))
         .WriteTo.File("Logs/car-requests-.txt", rollingInterval: RollingInterval.Day))
     .CreateLogger();
+
+builder.Services.AddScoped<ExecutionTimingFilter>();
 
 
 builder.Host.UseSerilog(); 
